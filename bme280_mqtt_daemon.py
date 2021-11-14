@@ -10,6 +10,7 @@ import time
 import datetime
 import platform
 #import math # needed only for detailed sealavel pressure calculation
+import json
 import os
 import signal
 import sys
@@ -116,11 +117,12 @@ def publish_mqtt(client, sensor_data, options, topics, file_handle, verbose=Fals
 
     if verbose:
         str_datetime = curr_datetime.strftime("%Y-%m-%d %H:%M:%S")
-        print("{0}: temperature: {1:.1f} F, humidity: {2:.1f} %RH, pressure: {3:.2f} hPa, sealevel: {4:.2f} hPa".
-              format(str_datetime, temp_F, hum, press_A, press_S), file=file_handle)
+        print("{0}: temperature: {1:.1f}ºC, humidity: {2:.1f} %RH, pressure: {3:.2f} hPa, sealevel: {4:.2f} hPa".
+              format(str_datetime, temp_C, hum, press_A, press_S), file=file_handle)
+        file_handle.flush()
 
     if options.format == "flat":
-        temperature = str(round(temp_F, 1))
+        temperature = str(round(temp_C, 1))
         humidity = str(round(hum, 1))
         pressure = str(round(press_A, 2))
         pressure_sealevel = str(round(press_S, 2))
@@ -135,13 +137,13 @@ def publish_mqtt(client, sensor_data, options, topics, file_handle, verbose=Fals
     else:
         data = {}
         data['humidity'] = round(hum, 1)
-        data['temperature'] = round(temp_F, 1)
+        data['temperature'] = round(temp_C, 1)
         data['pressure'] = round(press_A, 2)
         if options.elevation > SEALEVEL_MIN:
             data['sealevel'] = round(press_S, 2)
         data['timestamp'] = curr_datetime.replace(microsecond=0).isoformat()
 
-        client.publish(options.root_topic, data)
+        client.publish(options.root_topic, json.dumps(data))
 
     return
 
@@ -227,7 +229,7 @@ def start_bme280_sensor(args):
     client.loop_start()
 
     # Initialise the BME280
-    bus = SMBus(1)
+    bus = SMBus(11)
 
     sensor = bme280.BME280(i2c_addr=i2c_address, i2c_dev=bus)
 
@@ -245,6 +247,7 @@ def start_bme280_sensor(args):
     str_datetime = curr_datetime.strftime("%Y-%m-%d %H:%M:%S")
     print("{0}: pid: {1:d}, bme280 sensor started on 0x{2:x}, mode: {3:s}, toffset: {4:0.1f} C, hoffset: {5:0.1f} %, poffset: {6:0.2f} hPa".
           format(str_datetime, os.getpid(), i2c_address, options.mode, options.toffset, options.hoffset, options.poffset), file=file_handle)
+    file_handle.flush()
 
     while read_loop:
         curr_time = time.time()
