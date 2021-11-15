@@ -4,7 +4,8 @@ After=network.target
 
 [Service]
 User=root
-#Restart=always
+Restart=always
+RestartSec=30
 Type=simple
 PIDFile=/run/bme280_mqtt.pid
 ExecStart=/usr/bin/python3 /usr/local/bin/bme280_mqtt_daemon.py -d

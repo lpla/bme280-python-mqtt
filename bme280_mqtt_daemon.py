@@ -229,7 +229,7 @@ def start_bme280_sensor(args):
     client.loop_start()
 
     # Initialise the BME280
-    bus = SMBus(11)
+    bus = SMBus(22)
 
     sensor = bme280.BME280(i2c_addr=i2c_address, i2c_dev=bus)
 
