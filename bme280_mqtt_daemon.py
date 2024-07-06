@@ -183,7 +183,7 @@ def start_bme280_sensor(args):
     else:
         file_handle = sys.stdout
 
-    client = mqtt.Client(args.clientid)
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, args.clientid)
 
     mqtt_conf = configparser.ConfigParser()
     mqtt_conf.read(args.config)
