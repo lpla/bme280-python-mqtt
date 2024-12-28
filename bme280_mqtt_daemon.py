@@ -31,7 +31,7 @@ except ImportError:
 import bme280
 
 MQTT_INI = "/etc/mqtt.ini"
-MQTT_SEC = "bme280"
+MQTT_SEC = "BME280"
 
 SEALEVEL_MIN = -999
 
@@ -89,6 +89,7 @@ def on_connect(client, userdata, flags, return_code):
     if return_code != 0:
         print("Connected with result code: ", str(return_code))
     else:
+        client.connected_flag=True
         client.publish(status_topic, "Online", retain=True)
 
     
@@ -136,14 +137,18 @@ def publish_mqtt(client, sensor_data, options, topics, file_handle, verbose=Fals
 
     else:
         data = {}
-        data['humidity'] = round(hum, 1)
-        data['temperature'] = round(temp_C, 1)
-        data['pressure'] = round(press_A, 2)
+        data[options.section] = {}
+        data[options.section]['Humidity'] = round(hum, 1)
+        data[options.section]['Temperature'] = round(temp_C, 1)
+        data[options.section]['Pressure'] = round(press_A, 2)
         if options.elevation > SEALEVEL_MIN:
-            data['sealevel'] = round(press_S, 2)
-        data['timestamp'] = curr_datetime.replace(microsecond=0).isoformat()
+            data[options.section]['Sealevel'] = round(press_S, 2)
 
-        client.publish(options.root_topic, json.dumps(data))
+        data['TempUnit'] = 'F'
+        data['Time'] = curr_datetime.replace(microsecond=0).isoformat()
+
+        #json_data = json.dumps(data)
+        client.publish(options.root_topic + '/SENSOR', json.dumps(data))
 
     return
 
@@ -183,10 +188,13 @@ def start_bme280_sensor(args):
     else:
         file_handle = sys.stdout
 
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, args.clientid)
+    mqtt.Client.connected_flag=False
+    client = mqtt.Client(args.clientid)
 
     mqtt_conf = configparser.ConfigParser()
     mqtt_conf.read(args.config)
+
+    options.section = args.section
 
     options.root_topic = mqtt_conf.get(args.section, 'topic')
 
@@ -225,8 +233,13 @@ def start_bme280_sensor(args):
 
     client.on_connect = on_connect
 #    client.on_disconnect = on_disconnect
-    client.connect(host, port, 60)
     client.loop_start()
+    client.connect(host, port, 60)
+    #client.loop_start()
+
+    # Wait for valid connection
+    while not client.connected_flag: #wait in loop
+        time.sleep(10)
 
     # Initialise the BME280
     bus = SMBus(22)
@@ -279,6 +292,7 @@ def start_bme280_sensor(args):
     print("{0}: pid: {1:d}, bme280 sensor interrupted".format(str_datetime, os.getpid()), file=file_handle)
     client.publish(status_topic, "Offline", retain=True)
     
+    client.loop_stop()
     client.disconnect()
 
 

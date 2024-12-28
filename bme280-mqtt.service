@@ -1,6 +1,6 @@
 [Unit]
 Description=BME280 MQTT Service
-After=network.target
+After=network-online.target
 
 [Service]
 User=root
