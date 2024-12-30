@@ -1,5 +1,5 @@
 argparse
-configparser==4.0.2
+configparser
 python-daemon
 paho-mqtt
 smbus2
