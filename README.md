@@ -48,7 +48,7 @@ The following configuration yaml could be used with Home Assistant:
 sensor:
  - platform: mqtt
     state_topic: 'environment/den/BME280_temperature'
-    unit_of_measurement: '°F'
+    unit_of_measurement: '°C'
     name: 'Den Temperature'
   - platform: mqtt
     state_topic: 'environment/den/BME280_humidity'
