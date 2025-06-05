@@ -13,7 +13,7 @@ install.daemon: $(INSTDIR)/$(SCRIPT)
 install.service: $(SVCDIR)/$(SERVICE)
 
 build:
-	sudo pip3 install -r requirements.txt
+	sudo pip3 install -r requirements.txt --break-system-packages
 
 test:
 	sudo ./$(SCRIPT)
