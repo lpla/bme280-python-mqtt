@@ -32,6 +32,14 @@ sudo pip3 install -r requirements.txt --break-system-packages
 
 Install the requirements in the `root` enviroment, or whichever enviroment make sense for you. Currently I run the daemon as root for easy access to /dev/i2c
 
+Or you can install these dependencies with `sudo make build`
+
+### Install
+
+Just run `sudo make install` from the cloned repo folder.
+
+Now, `sudo cp mqtt-example.ini /etc/mqtt.ini` and modify its values with the editor you feel, like `nano /etc/mqtt.ini`.
+
 ### Home Assistant
 
 The following configuration yaml could be used with Home Assistant:
