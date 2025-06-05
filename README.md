@@ -36,6 +36,7 @@ Or you can install these dependencies with `sudo make build`
 
 ### Install
 
+Set the correct SMBus for your environment in the `bme280_mqtt_daemon.py`, as my setup has 22 but usually it has the 1.
 Just run `sudo make install` from the cloned repo folder.
 
 Now, `sudo cp mqtt-example.ini /etc/mqtt.ini` and modify its values with the editor you feel, like `nano /etc/mqtt.ini`.
